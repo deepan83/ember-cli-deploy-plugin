@@ -1,6 +1,7 @@
 var CoreObject     = require('core-object');
 var chalk = require('chalk');
 var cloneDeep = require('lodash.clonedeep');
+var argv = require('yargs').argv;
 
 function _pluginHelper() {
   return {
@@ -29,7 +30,7 @@ var DeployPluginBase = CoreObject.extend({
     this.ui = context.ui;
     this.project = context.project;
     context.config[this.name] = context.config[this.name] || {};
-    this.pluginConfig = context.config[this.name];
+    this.pluginConfig = Object.assign(context.config[this.name], argv);
   },
   configure: function(/* context */) {
     this.log('validating config', { verbose: true});
@@ -49,16 +50,17 @@ var DeployPluginBase = CoreObject.extend({
       }
       this.log('Missing config: `' + propertyName + '`, using default: `' + description + '`', { color: 'yellow', verbose: true });
     }
+    //console.log(this.pluginConfig);
   },
   ensureConfigPropertySet: function(propertyName){
-    if (!this.pluginConfig[propertyName]) {
+    if (!(this.pluginConfig[propertyName] || argv[propertyName])) {
       var message = 'Missing required config: `' + propertyName + '`';
       this.log(message, { color: 'red' });
       throw new Error(message);
     }
   },
   readConfig: function(property){
-    var configuredValue = this.pluginConfig[property];
+    var configuredValue = this.pluginConfig[property] || argv[property];
     if (typeof configuredValue === 'function') {
       return configuredValue.call(this.pluginConfig, this.context, _pluginHelper.call(this));
     }
