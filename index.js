@@ -1,7 +1,7 @@
 var CoreObject     = require('core-object');
 var chalk = require('chalk');
 var cloneDeep = require('lodash.clonedeep');
-var argv = require('yargs').argv;
+var argv = require('yargs/yargs').argv;
 
 function _pluginHelper() {
   return {
